@@ -1,20 +1,18 @@
 import React from 'react';
-import Product from './Product';
+import ProductCard from './ProductCard';
 
-const products = [
-  { id: 1, name: 'Headphone', price: 10 },
-  { id: 2, name: 'Product 2', price: 20 },
-  { id: 3, name: 'Product 3', price: 30 },
-];
-
-function ProductList({ addToCart }) {
+const ProductList = ({ products, onDelete, onEdit }) => {
   return (
     <div className="product-list">
       {products.map(product => (
-        <Product key={product.id} product={product} addToCart={addToCart} />
+        <div key={product.id}>
+          <ProductCard product={product} />
+          <button onClick={() => onDelete(product.id)}>Delete</button>
+          <button onClick={() => onEdit(product)}>Edit</button>
+        </div>
       ))}
     </div>
   );
-}
+};
 
 export default ProductList;
