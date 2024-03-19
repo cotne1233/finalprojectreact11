@@ -6,6 +6,7 @@ const AddProductForm = ({ onAddProduct }) => {
     price: '',
     description: '',
     image: '',
+    category: 'electronics', // Default category is electronics
   });
 
   const handleChange = (e) => {
@@ -17,7 +18,7 @@ const AddProductForm = ({ onAddProduct }) => {
     e.preventDefault();
     if (product.name && product.price) {
       onAddProduct(product);
-      setProduct({ name: '', price: '', description: '', image: '' });
+      setProduct({ name: '', price: '', description: '', image: '', category: 'electronics' });
     } else {
       alert('Please enter product name and price.');
     }
@@ -52,6 +53,11 @@ const AddProductForm = ({ onAddProduct }) => {
         value={product.image}
         onChange={handleChange}
       />
+      <select name="category" value={product.category} onChange={handleChange}>
+        <option value="electronics">Electronics</option>
+        <option value="food">Food</option>
+        <option value="for home">For Home</option>
+      </select>
       <button type="submit">Add Product</button>
     </form>
   );

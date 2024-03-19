@@ -4,14 +4,51 @@ import ProductList from './components/ProductList';
 import AddProductForm from './components/AddProductForm';
 import EditProductForm from './components/EditProductForm';
 import LoginForm from './components/LoginForm';
+import { FaLanguage } from 'react-icons/fa';
 
 function App() {
+  const [language, setLanguage] = useState('en'); // Default language is English
+
+  // Define language strings
+  const languageStrings = {
+    en: {
+      greeting: 'Welcome to GEO-MARKET',
+      searchPlaceholder: 'Search Products',
+      checkout: 'Checkout',
+      // Add more English strings as needed
+    },
+    fr: {
+      greeting: 'Bienvenue sur GEO-MARKET',
+      searchPlaceholder: 'Rechercher des produits',
+      checkout: 'Check-out',
+      // Add more French strings as needed
+    },
+    es: {
+      greeting: 'Bienvenido a GEO-MARKET',
+      searchPlaceholder: 'Buscar productos',
+      checkout: 'Revisar',
+      // Add more Spanish strings as needed
+    },
+    de: {
+      greeting: 'Willkommen bei GEO-MARKET',
+      searchPlaceholder: 'Produkte durchsuchen',
+      checkout: 'Auschecken',
+      // Add more German strings as needed
+    },
+    it: {
+      greeting: 'Benvenuti su GEO-MARKET',
+      searchPlaceholder: 'Cerca prodotti',
+      checkout: 'Check-out',
+      // Add more Italian strings as needed
+    },
+  };
+
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState([]);
   const [showCart, setShowCart] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [registeredUsers, setRegisteredUsers] = useState([]);
@@ -29,16 +66,27 @@ function App() {
   }, 0);
 
   const handleRegister = (username, password) => {
+    // Add user to registeredUsers state
     setRegisteredUsers([...registeredUsers, { username, password }]);
     alert('Registration successful. Please login.');
   };
 
   const handleLogin = (username, password) => {
+    // Check if username and password match any registered user
     const user = registeredUsers.find(user => user.username === username && user.password === password);
     if (user) {
       setIsLoggedIn(true);
     } else {
       alert('Invalid username or password.');
+    }
+  };
+
+  const handleBecomeAdmin = () => {
+    if (adminPassword === '000') {
+      setIsAdmin(true);
+      setAdminPassword('');
+    } else {
+      alert('Incorrect admin password.');
     }
   };
 
@@ -48,7 +96,11 @@ function App() {
   };
 
   const handleDeleteProduct = (productId) => {
-    setProducts(products.filter(product => product.id !== productId));
+    if (isAdmin) {
+      setProducts(products.filter(product => product.id !== productId));
+    } else {
+      alert('Only admins can remove products.');
+    }
   };
 
   const handleEditProduct = (product) => {
@@ -71,12 +123,37 @@ function App() {
     return product.name.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
+  // Toggle language between available languages
+  const toggleLanguage = (lang) => {
+    setLanguage(lang);
+  };
+
+  // Select language strings based on current language
+  const strings = languageStrings[language];
+
+  // Generate language options for the language switch
+  const languageOptions = Object.keys(languageStrings).map(lang => (
+    <button key={lang} onClick={() => toggleLanguage(lang)}>{lang}</button>
+  ));
+
   return (
     <div className="App">
       <header className="App-header">
-        <h1>GEO-MARKET</h1>
+        <div className="language-switch">
+          <FaLanguage />
+          <div className="language-options">
+            {languageOptions}
+          </div>
+        </div>
+        <h1>{strings.greeting}</h1>
         {!isLoggedIn ? (
           <LoginForm onLogin={handleLogin} onRegister={handleRegister} />
+        ) : isAdmin ? (
+          <div className="admin-actions">
+            <input type="password" placeholder="Enter Admin Password" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} />
+            <button onClick={handleBecomeAdmin}>Become Admin</button>
+            <AddProductForm onAddProduct={handleAddProduct} />
+          </div>
         ) : (
           <div className="cart">
             <button className="cart-button" onClick={toggleCart}>
@@ -91,22 +168,27 @@ function App() {
                   </div>
                 ))}
                 <div className="total">
-                  Total: ${total.toFixed(2)}
+                  {strings.checkout}: ${total.toFixed(2)}
                 </div>
-                <button onClick={handleCheckout}>Checkout</button>
+                <button onClick={handleCheckout}>{strings.checkout}</button>
               </div>
             )}
-            <AddProductForm onAddProduct={handleAddProduct} />
           </div>
         )}
         <div className="search">
           <input
             type="text"
-            placeholder="Search Products"
+            placeholder={strings.searchPlaceholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
+        {isLoggedIn && !isAdmin && (
+          <div className="admin-password">
+            <input type="password" placeholder="Enter Admin Password" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} />
+            <button onClick={handleBecomeAdmin}>Become Admin</button>
+          </div>
+        )}
       </header>
       {isLoggedIn && (
         <main>
